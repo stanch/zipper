@@ -2,9 +2,11 @@ name := "zipper"
 
 scalaVersion := "2.11.7"
 
+resolvers += Resolver.bintrayRepo("stanch", "maven")
+
 libraryDependencies ++= Seq(
   "com.chuusai" %% "shapeless" % "2.2.5",
-  "com.lihaoyi" %% "pprint" % "0.3.8" % Provided,
+  "org.stanch" %% "reftree" % "0.1.2" % Provided,
   "org.scalatest" %% "scalatest" % "2.2.6" % Test,
   "com.lihaoyi" % "ammonite-repl" % "0.5.4" % Test cross CrossVersion.full
 )

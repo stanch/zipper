@@ -1,25 +1,63 @@
-## zipper — an implementation of Huet’s Zipper
+## Zipper — an implementation of Huet’s Zipper
 
-A zipper is a tool that allows to navigate and modify immutable recursive data structures.
+A Zipper is a tool that allows to navigate and modify immutable recursive data structures.
 This implementation is inspired by
 [the original paper by Huet](https://www.st.cs.uni-saarland.de/edu/seminare/2005/advanced-fp/docs/huet-zipper.pdf),
 as well as the [Argonaut’s JSON Zipper](http://argonaut.io/doc/zipper/).
 
 Consider the following example:
 
-```tut
-import pprint._ // http://www.lihaoyi.com/upickle-pprint/pprint/
-import zipper._
-
+```tut:silent
 // Define a tree data structure
 case class Tree(x: Int, c: List[Tree] = List.empty)
 
-val tree = Tree(1, List(Tree(11, List(Tree(111), Tree(112))), Tree(12, List(Tree(121), Tree(122, List(Tree(1221), Tree(1222))), Tree(123))), Tree(13)))
+// Create a tree
+val tree = Tree(
+  1, List(
+    Tree(
+      11, List(
+        Tree(111),
+        Tree(112)
+      )
+    ),
+    Tree(
+      12, List(
+        Tree(121),
+        Tree(
+          122, List(
+            Tree(1221),
+            Tree(1222)
+          )
+        ),
+        Tree(123)
+      )
+    ),
+    Tree(13)
+  )
+)
+```
 
-// Let’s look at our tree
-pprintln(tree)
+Let’s use [reftree](https://github.com/stanch/reftree) to have a better look:
 
-// Use a zipper to move around and change data
+```tut:silent
+import java.nio.file.Paths
+import reftree._
+
+// Simplify list visualization to reduce visual noise
+import ToRefTree.Simple.list
+
+DotPlotter(Paths.get("images", "tree.png"), verticalSpacing = 1).plot(tree)
+```
+
+<img src="images/tree.png" height="500px" alt="a tree" />
+
+Since the tree is immutable, modifying it can be a pain,
+but it’s easily solved with a Zipper:
+
+```tut:silent
+import zipper._
+
+// Use a Zipper to move around and change data
 val modified = {
   Zipper(tree)
     .moveDownAt(1)          // 12
@@ -37,16 +75,34 @@ val modified = {
     .deleteAndMoveUp        // 11
     .commit                 // commit the changes and return the result
 }
-
-// Here’s what the modified tree looks like
-pprintln(modified)
 ```
+
+Here’s what the modified tree looks like:
+
+```tut:silent
+DotPlotter(Paths.get("images", "modified.png"), verticalSpacing = 1).plot(modified)
+```
+
+<img src="images/modified.png" height="500px" alt="a modified tree" />
+
+If we draw both trees side by side, we’ll see that
+the unchanged parts are shared:
+
+```tut:silent
+DotPlotter(Paths.get("images", "both.png"), verticalSpacing = 1).plot(tree, modified)
+```
+
+<img src="images/both.png" height="500px" alt="both trees" />
+
+_Since all the example code is actually run by [tut](https://github.com/tpolecat/tut),
+you can find the resulting images in the `images` directory._
+
 
 ### Usage
 
 #### Unzip
 
-In order for the zipper to work on your data structure `Tree`, you need an implicit instance of `Unzip[Tree]`.
+In order for the Zipper to work on your data structure `Tree`, you need an implicit instance of `Unzip[Tree]`.
 `Unzip` is defined as follows:
 
 ```scala
