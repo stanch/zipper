@@ -6,7 +6,7 @@ resolvers += Resolver.bintrayRepo("stanch", "maven")
 
 libraryDependencies ++= Seq(
   "com.chuusai" %% "shapeless" % "2.2.5",
-  "org.stanch" %% "reftree" % "0.1.2" % Provided,
+  "org.stanch" %% "reftree" % "0.1.3" % Provided,
   "org.scalatest" %% "scalatest" % "2.2.6" % Test,
   "com.lihaoyi" % "ammonite-repl" % "0.5.4" % Test cross CrossVersion.full
 )

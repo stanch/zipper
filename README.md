@@ -46,10 +46,12 @@ import reftree._
 // Simplify list visualization to reduce visual noise
 import ToRefTree.Simple.list
 
-DotPlotter(Paths.get("images", "tree.png"), verticalSpacing = 1).plot(tree)
+val path = Paths.get("images", "readme")
+
+DotPlotter(path.resolve("tree.png"), verticalSpacing = 1).plot(tree)
 ```
 
-<img src="images/tree.png" height="500px" alt="a tree" />
+<img src="images/readme/tree.png" height="500px" />
 
 Since the tree is immutable, modifying it can be a pain,
 but it’s easily solved with a Zipper:
@@ -80,22 +82,28 @@ val modified = {
 Here’s what the modified tree looks like:
 
 ```scala
-DotPlotter(Paths.get("images", "modified.png"), verticalSpacing = 1).plot(modified)
+DotPlotter(path.resolve("modified.png"), verticalSpacing = 1).plot(modified)
 ```
 
-<img src="images/modified.png" height="500px" alt="a modified tree" />
+<img src="images/readme/modified.png" height="500px" />
 
 If we draw both trees side by side, we’ll see that
 the unchanged parts are shared:
 
 ```scala
-DotPlotter(Paths.get("images", "both.png"), verticalSpacing = 1).plot(tree, modified)
+DotPlotter(path.resolve("both.png"), verticalSpacing = 1).plot(tree, modified)
 ```
 
-<img src="images/both.png" height="500px" alt="both trees" />
+<img src="images/readme/both.png" height="500px" />
 
 _Since all the example code is actually run by [tut](https://github.com/tpolecat/tut),
-you can find the resulting images in the `images` directory._
+you can find the resulting images/readme in the `images/readme` directory._
+
+
+### Zipper tutorial
+
+So how does a Zipper actually work? If you want to learn more, proceed to
+the [tutorial](TUTORIAL.md).
 
 
 ### Usage
@@ -121,7 +129,7 @@ scala> case class Tree(x: Int, c: Vector[Tree] = Vector.empty)
 defined class Tree
 
 scala> implicit val unzip = Unzip.For[Tree, Vector].derive
-unzip: zipper.Unzip[Tree] = zipper.GenericUnzipInstances$For$$anon$2@2e7cb857
+unzip: zipper.Unzip[Tree] = zipper.GenericUnzipInstances$For$$anon$2@249f9a91
 ```
 
 The automatic derivation is powered by [shapeless](https://github.com/milessabin/shapeless).
