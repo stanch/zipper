@@ -108,6 +108,14 @@ the [tutorial](TUTORIAL.md).
 
 ### Usage
 
+Include these lines in your `build.sbt`:
+
+```scala
+resolvers += Resolver.bintrayRepo("stanch", "maven")
+
+libraryDependencies += "org.stanch" %% "zipper" % "0.1.0"
+```
+
 #### Unzip
 
 In order for the Zipper to work on your data structure `Tree`, you need an implicit instance of `Unzip[Tree]`.
@@ -129,7 +137,7 @@ scala> case class Tree(x: Int, c: Vector[Tree] = Vector.empty)
 defined class Tree
 
 scala> implicit val unzip = Unzip.For[Tree, Vector].derive
-unzip: zipper.Unzip[Tree] = zipper.GenericUnzipInstances$For$$anon$2@249f9a91
+unzip: zipper.Unzip[Tree] = zipper.GenericUnzipInstances$For$$anon$2@200d382
 ```
 
 The automatic derivation is powered by [shapeless](https://github.com/milessabin/shapeless).

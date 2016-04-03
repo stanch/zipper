@@ -1,4 +1,10 @@
+organization := "org.stanch"
+
 name := "zipper"
+
+version := "0.1.0"
+
+licenses += ("MIT", url("http://opensource.org/licenses/MIT"))
 
 scalaVersion := "2.11.7"
 

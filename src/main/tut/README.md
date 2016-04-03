@@ -108,6 +108,14 @@ the [tutorial](TUTORIAL.md).
 
 ### Usage
 
+Include these lines in your `build.sbt`:
+
+```scala
+resolvers += Resolver.bintrayRepo("stanch", "maven")
+
+libraryDependencies += "org.stanch" %% "zipper" % "0.1.0"
+```
+
 #### Unzip
 
 In order for the Zipper to work on your data structure `Tree`, you need an implicit instance of `Unzip[Tree]`.

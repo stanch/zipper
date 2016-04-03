@@ -89,7 +89,7 @@ assert(tree2b == tree2)
 
 The power of Zipper becomes apparent when we go one or more levels deep.
 To move down the tree, we “unzip” it, separating the child nodes into
-the focused node and left and right siblings:
+the focused node and its left and right siblings:
 
 ```tut:silent
 val zipper2 = zipper1.moveDownLeft
