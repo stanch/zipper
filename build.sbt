@@ -8,7 +8,10 @@ licenses += ("MIT", url("http://opensource.org/licenses/MIT"))
 
 scalaVersion := "2.11.8"
 
-resolvers += Resolver.bintrayRepo("stanch", "maven")
+resolvers ++= Seq(
+  Resolver.bintrayRepo("stanch", "maven"),
+  Resolver.bintrayRepo("drdozer", "maven")
+)
 
 libraryDependencies ++= Seq(
   "com.chuusai" %% "shapeless" % "2.2.5",
