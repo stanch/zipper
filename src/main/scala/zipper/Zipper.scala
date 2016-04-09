@@ -36,10 +36,10 @@ object Unzip extends GenericUnzipInstances
  * See https://www.st.cs.uni-saarland.de/edu/seminare/2005/advanced-fp/docs/huet-zipper.pdf.
  */
 case class Zipper[A](
-  focus: A,
   left: List[A],
-  top: Option[Zipper[A]],
-  right: List[A]
+  focus: A,
+  right: List[A],
+  top: Option[Zipper[A]]
 )(implicit val unzip: Unzip[A]) {
   import Zipper._
 
@@ -239,5 +239,5 @@ object Zipper {
   }
 
   /** Create a zipper from a tree-like data structure */
-  def apply[A: Unzip](node: A): Zipper[A] = new Zipper(node, Nil, None, Nil)
+  def apply[A: Unzip](node: A): Zipper[A] = new Zipper(Nil, node, Nil, None)
 }

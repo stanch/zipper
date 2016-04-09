@@ -100,12 +100,6 @@ _Since all the example code is actually run by [tut](https://github.com/tpolecat
 you can find the resulting images/readme in the `images/readme` directory._
 
 
-### Zipper tutorial
-
-So how does a Zipper actually work? If you want to learn more, proceed to
-the [tutorial](TUTORIAL.md).
-
-
 ### Usage
 
 Include these lines in your `build.sbt`:
@@ -113,7 +107,7 @@ Include these lines in your `build.sbt`:
 ```scala
 resolvers += Resolver.bintrayRepo("stanch", "maven")
 
-libraryDependencies += "org.stanch" %% "zipper" % "0.1.0"
+libraryDependencies += "org.stanch" %% "zipper" % "0.2.0"
 ```
 
 #### Unzip
