@@ -48,7 +48,7 @@ import ToRefTree.Simple.list
 
 val path = Paths.get("images", "readme")
 
-DotPlotter(path.resolve("tree.png"), verticalSpacing = 1).plot(tree)
+Diagram(path.resolve("tree.png"), verticalSpacing = 1).show(tree)
 ```
 
 <img src="images/readme/tree.png" height="500px" />
@@ -82,7 +82,7 @@ val modified = {
 Here’s what the modified tree looks like:
 
 ```tut:silent
-DotPlotter(path.resolve("modified.png"), verticalSpacing = 1).plot(modified)
+Diagram(path.resolve("modified.png"), verticalSpacing = 1).show(modified)
 ```
 
 <img src="images/readme/modified.png" height="500px" />
@@ -91,7 +91,7 @@ If we draw both trees side by side, we’ll see that
 the unchanged parts are shared:
 
 ```tut:silent
-DotPlotter(path.resolve("both.png"), verticalSpacing = 1).plot(tree, modified)
+Diagram(path.resolve("both.png"), verticalSpacing = 1).show(tree, modified)
 ```
 
 <img src="images/readme/both.png" height="500px" />
