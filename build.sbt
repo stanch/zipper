@@ -2,7 +2,7 @@ organization := "org.stanch"
 
 name := "zipper"
 
-version := "0.2.0"
+version := "0.3.0"
 
 licenses += ("MIT", url("http://opensource.org/licenses/MIT"))
 

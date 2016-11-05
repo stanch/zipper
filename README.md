@@ -107,7 +107,7 @@ Include these lines in your `build.sbt`:
 ```scala
 resolvers += Resolver.bintrayRepo("stanch", "maven")
 
-libraryDependencies += "org.stanch" %% "zipper" % "0.2.0"
+libraryDependencies += "org.stanch" %% "zipper" % "0.3.0"
 ```
 
 #### Unzip
@@ -131,7 +131,7 @@ scala> case class Tree(x: Int, c: Vector[Tree] = Vector.empty)
 defined class Tree
 
 scala> implicit val unzip = Unzip.For[Tree, Vector].derive
-unzip: zipper.Unzip[Tree] = zipper.GenericUnzipInstances$For$$anon$2@1c2baa47
+unzip: zipper.Unzip[Tree] = zipper.GenericUnzipInstances$For$$anon$2@4161590
 ```
 
 The automatic derivation is powered by [shapeless](https://github.com/milessabin/shapeless).
@@ -168,9 +168,9 @@ tree: Tree = Tree(1,Vector(Tree(2,Vector()), Tree(3,Vector()), Tree(5,Vector()))
 scala> val modified = {
      |   Zipper(tree)
      |     .moveDownLeft
-     |     .loopWhile(_.x < 5, _.tryMoveRight)
+     |     .repeatWhile(_.x < 5, _.tryMoveRight)
      |     .insertRight(Tree(4))
      |     .commit
      | }
-modified: Tree = Tree(1,Vector(Tree(2,Vector()), Tree(3,Vector()), Tree(4,Vector()), Tree(5,Vector())))
+modified: Tree = Tree(1,Vector(Tree(2,Vector()), Tree(3,Vector()), Tree(5,Vector()), Tree(4,Vector())))
 ```

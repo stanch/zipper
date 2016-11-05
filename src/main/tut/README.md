@@ -107,7 +107,7 @@ Include these lines in your `build.sbt`:
 ```scala
 resolvers += Resolver.bintrayRepo("stanch", "maven")
 
-libraryDependencies += "org.stanch" %% "zipper" % "0.2.0"
+libraryDependencies += "org.stanch" %% "zipper" % "0.3.0"
 ```
 
 #### Unzip
@@ -163,7 +163,7 @@ val tree = Tree(1, Vector(Tree(2), Tree(3), Tree(5)))
 val modified = {
   Zipper(tree)
     .moveDownLeft
-    .loopWhile(_.x < 5, _.tryMoveRight)
+    .repeatWhile(_.x < 5, _.tryMoveRight)
     .insertRight(Tree(4))
     .commit
 }

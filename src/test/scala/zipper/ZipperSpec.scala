@@ -26,25 +26,31 @@ class ZipperSpec extends FlatSpec with Matchers {
 
   it should "perform basic operations correctly" in {
     val modified = Zipper(tree)
-      .moveDownAt(1)          // 12
-      .moveDownRight          // 123
-      .deleteAndMoveLeft      // 122
-      .moveDownLeft           // 1221
-      .update(_.copy(x = -1))
-      .moveRight              // 1222
-      .set(Tree(-2))
-      .moveUp                 // 122
-      .moveUp                 // 12
-      .rewindLeft             // 11
-      .moveDownRight          // 112
-      .moveLeftBy(1)          // 111
-      .deleteAndMoveUp        // 11
+      .moveDownAt(1)                              .tapFocus(_.x shouldEqual 12)
+      .moveDownRight                              .tapFocus(_.x shouldEqual 123)
+      .deleteAndMoveLeft                          .tapFocus(_.x shouldEqual 122)
+      .moveDownLeft                               .tapFocus(_.x shouldEqual 1221)
+      .update(_.copy(x = -1))                     .tapFocus(_.x shouldEqual -1)
+      .moveRight                                  .tapFocus(_.x shouldEqual 1222)
+      .set(Tree(-2))                              .tapFocus(_.x shouldEqual -2)
+      .moveUp                                     .tapFocus(_.x shouldEqual 122)
+      .moveUp                                     .tapFocus(_.x shouldEqual 12)
+      .rewindLeft                                 .tapFocus(_.x shouldEqual 11)
+      .moveDownRight                              .tapFocus(_.x shouldEqual 112)
+      .moveLeftBy(1)                              .tapFocus(_.x shouldEqual 111)
+      .deleteAndMoveUp                            .tapFocus(_.x shouldEqual 11)
+      .insertDownRight(List(Tree(113), Tree(114))).tapFocus(_.x shouldEqual 114)
+      .moveUp                                     .tapFocus(_.x shouldEqual 11)
+      .rewindRight                                .tapFocus(_.x shouldEqual 13)
+      .insertDownLeft(List(Tree(131), Tree(132))) .tapFocus(_.x shouldEqual 131)
       .commit
 
     modified shouldEqual Tree(
       1, List(
         Tree(11, List(
-          Tree(112)
+          Tree(112),
+          Tree(113),
+          Tree(114)
         )),
         Tree(12, List(
           Tree(121),
@@ -53,33 +59,42 @@ class ZipperSpec extends FlatSpec with Matchers {
             Tree(-2)
           ))
         )),
-        Tree(13)
+        Tree(13, List(
+          Tree(131),
+          Tree(132)
+        ))
       )
     )
   }
 
   it should "allow to express loops in a simple way" in {
-    val modified = Zipper(tree)
-      .loopWhile(_.x < 1222, _.tryMoveDownLeft, _.tryMoveRight)
-      .deleteAndMoveRight
-      .commit
+    Zipper(tree)
+      .cycle(_.tryMoveDownRight, _.tryMoveLeft, _.tryMoveLeft)
+      .tapFocus(_.x shouldEqual 111)
+      .repeat(2, _.tryMoveUp)
+      .tapFocus(_.x shouldEqual 1)
 
-    modified shouldEqual Tree(
-      1, List(
-        Tree(11, List(
-          Tree(111),
-          Tree(112)
-        )),
-        Tree(12, List(
-          Tree(121),
-          Tree(122, List(
-            Tree(1222)
-          )),
-          Tree(123)
-        )),
-        Tree(13)
-      )
-    )
+    Zipper(tree)
+      .repeatWhile(_.x < 100, _.tryMoveDownLeft.flatMap(_.tryMoveRight))
+      .tapFocus(_.x shouldEqual 122)
+  }
+
+  it should "allow to accumulate state while looping" in {
+    def next: Zipper.Move[Tree] =
+      _.tryMoveDownLeft
+        .orElse(_.tryMoveRight)
+        .orElse(_.tryMoveUp.flatMap(_.tryMoveRight))
+
+    val (zipper, sum) = Zipper(tree)
+      .repeatWhileNot(_.x > 10, next)
+      .tapFocus(_.x shouldEqual 11)
+      .loopAccum(0) { (z, a) ⇒
+        if (a > 1000) (z.fail, a)
+        else (next(z), a + z.focus.x)
+      }
+
+    zipper.focus.x shouldEqual 1222
+    sum shouldEqual 1710
   }
 
   it should "throw when the move is impossible" in {
@@ -109,6 +124,14 @@ class ZipperSpec extends FlatSpec with Matchers {
 
     intercept[UnsupportedOperationException] {
       Zipper(tree).moveDownRight.moveDownLeft
+    }
+
+    intercept[UnsupportedOperationException] {
+      Zipper(tree).moveDownRight.insertDownLeft(List.empty)
+    }
+
+    intercept[UnsupportedOperationException] {
+      Zipper(tree).moveDownRight.insertDownRight(List.empty)
     }
   }
 
@@ -160,7 +183,7 @@ class ZipperSpec extends FlatSpec with Matchers {
 
     val modified3 = Zipper(tree)
       .moveDownLeft
-      .loop(_.tryDeleteAndMoveRight)
+      .cycle(_.tryDeleteAndMoveRight)
       .tryDeleteAndMoveLeft.orElse(_.tryDeleteAndMoveRight).getOrElse(_.deleteAndMoveUp)
       .commit
 

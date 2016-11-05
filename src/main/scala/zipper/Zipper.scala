@@ -43,7 +43,8 @@ case class Zipper[A](
 )(implicit val unzip: Unzip[A]) {
   import Zipper._
 
-  private def fail: MoveResult[A] = MoveResult.Failure(this)
+  def stay: MoveResult[A] = MoveResult.Success(this)
+  def fail: MoveResult[A] = MoveResult.Failure(this)
 
   // Sideways
 
@@ -68,16 +69,22 @@ case class Zipper[A](
   def moveRight = tryMoveRight.get
 
   /** Move to the leftmost position */
-  def rewindLeft = loop(_.tryMoveLeft)
+  def rewindLeft = cycle(_.tryMoveLeft)
 
-  /** Move left by at most n */
-  def moveLeftBy(n: Int) = loopMax(n, _.tryMoveLeft)
+  /** Move left by n */
+  def tryMoveLeftBy(n: Int) = tryRepeat(n, _.tryMoveLeft)
+
+  /** Move left by n or throw if impossible */
+  def moveLeftBy(n: Int) = tryMoveLeftBy(n).get
 
   /** Move to the rightmost position */
-  def rewindRight = loop(_.tryMoveRight)
+  def rewindRight = cycle(_.tryMoveRight)
 
-  /** Move right by at most n */
-  def moveRightBy(n: Int) = loopMax(n, _.tryMoveRight)
+  /** Move right by n */
+  def tryMoveRightBy(n: Int) = tryRepeat(n, _.tryMoveRight)
+
+  /** Move right by n or throw if impossible */
+  def moveRightBy(n: Int) = tryMoveRightBy(n).get
 
   // Unzip-zip
 
@@ -117,9 +124,12 @@ case class Zipper[A](
   def moveUp = tryMoveUp.get
 
   /** Zip to the top and return the resulting value */
-  def commit = loop(_.tryMoveUp).focus
+  def commit = cycle(_.tryMoveUp).focus
 
-  // Updates
+  // Updates and focus manipulation
+
+  /** Perform a side-effect on the focus */
+  def tapFocus(f: A ⇒ Unit) = { f(focus); this }
 
   /** Replace the focus with a different value */
   def set(value: A) = copy(focus = value)
@@ -132,6 +142,30 @@ case class Zipper[A](
 
   /** Insert a new value to the right of focus */
   def insertRight(value: A) = copy(right = value :: right)
+
+  /** Move down left and insert a list of values on the left, focusing on the first one */
+  def tryInsertDownLeft(values: List[A]) = {
+    values ::: unzip.unzip(focus) match {
+      case head :: tail ⇒
+        Zipper.MoveResult.Success(copy(left = Nil, focus = head, right = tail, top = Some(this)))
+      case _ ⇒ fail
+    }
+  }
+
+  /** Move down left and insert a list of values on the left, focusing on the first one */
+  def insertDownLeft(values: List[A]) = tryInsertDownLeft(values).get
+
+  /** Move down right and insert a list of values on the right, focusing on the last one */
+  def tryInsertDownRight(values: List[A]) = {
+    unzip.unzip(focus) ::: values match {
+      case head :: tail ⇒
+        Zipper.MoveResult.Success(copy(left = Nil, focus = head, right = tail, top = Some(this)).rewindRight)
+      case _ ⇒ fail
+    }
+  }
+
+  /** Move down right and insert a list of values on the right, focusing on the last one */
+  def insertDownRight(values: List[A]) = tryInsertDownRight(values).get
 
   /** Delete the value in focus and move left */
   def tryDeleteAndMoveLeft = left match {
@@ -166,27 +200,72 @@ case class Zipper[A](
 
   // Loops
 
-  private def loopF(f: (Int, A) ⇒ Boolean, move0: Move[A], moves: Move[A]*): Zipper[A] = {
+  /** Cycle through the moves until a failure is produced and return the last success */
+  def cycle(move0: Move[A], moves: Move[A]*): Zipper[A] = {
     val moveList = move0 :: moves.toList
-    @tailrec def inner(i: Int, s: List[Move[A]], acc: Zipper[A]): Zipper[A] =
+    @tailrec def inner(s: List[Move[A]], acc: Zipper[A]): Zipper[A] =
       s.head(acc) match {
-        case MoveResult.Success(z) if f(i, z.focus) ⇒ inner(i + 1, if (s.tail.isEmpty) moveList else s.tail, z)
+        case MoveResult.Success(z) ⇒ inner(if (s.tail.isEmpty) moveList else s.tail, z)
         case _ ⇒ acc
       }
-    inner(0, moveList, this)
+    inner(moveList, this)
   }
 
-  /** Cycle through the moves until a failure is produced */
-  def loop(move0: Move[A], moves: Move[A]*): Zipper[A] =
-    loopF({ case _ ⇒ true }, move0, moves: _*)
+  /** Repeat a move `n` times */
+  @tailrec final def tryRepeat(n: Int, move: Move[A]): Zipper.MoveResult[A] =
+    if (n < 1) stay else move(this) match {
+      case MoveResult.Success(z) ⇒ z.tryRepeat(n - 1, move)
+      case failure ⇒ failure
+    }
 
-  /** Cycle through the moves at most `max` times until a failure is produced */
-  def loopMax(max: Int, move0: Move[A], moves: Move[A]*): Zipper[A] =
-    loopF({ case (i, _) ⇒ i < max }, move0, moves: _*)
+  /** Repeat a move `n` times or throw if impossible */
+  def repeat(n: Int, move: Move[A]): Zipper[A] = tryRepeat(n, move).get
 
-  /** Cycle through the moves while the condition is satisfied and a failure is not produced */
-  def loopWhile(condition: A ⇒ Boolean, move0: Move[A], moves: Move[A]*): Zipper[A] =
-    loopF({ case (_, f) ⇒ condition(f) }, move0, moves: _*)
+  /**
+   * Repeat a move while the condition is satisfied
+   *
+   * @return the first zipper that does not satisfy the condition, or failure
+   */
+  def tryRepeatWhile(condition: A ⇒ Boolean, move: Move[A]): Zipper.MoveResult[A] =
+    if (!condition(focus)) stay else move(this) match {
+      case MoveResult.Success(z) ⇒ z.tryRepeatWhile(condition, move)
+      case failure ⇒ failure
+    }
+
+  /**
+   * Repeat a move while the condition is satisfied or throw if impossible
+   *
+   * @return the first zipper that does not satisfy the condition
+   */
+  def repeatWhile(condition: A ⇒ Boolean, move: Move[A]): Zipper[A] =
+    tryRepeatWhile(condition, move).get
+
+  /**
+   * Repeat a move while the condition is not satisfied
+   *
+   * @return the first zipper that satisfies the condition, or failure
+   */
+  def tryRepeatWhileNot(condition: A ⇒ Boolean, move: Move[A]): Zipper.MoveResult[A] =
+    if (condition(focus)) stay else move(this) match {
+      case MoveResult.Success(z) ⇒ z.tryRepeatWhileNot(condition, move)
+      case failure ⇒ failure
+    }
+
+  /**
+   * Repeat a move while the condition is not satisfied or throw if impossible
+   *
+   * @return the first zipper that satisfies the condition
+   */
+  def repeatWhileNot(condition: A ⇒ Boolean, move: Move[A]): Zipper[A] =
+    tryRepeatWhileNot(condition, move).get
+
+  /** Loop and accumulate state until a failure is produced */
+  @tailrec final def loopAccum[B](acc: B)(f: (Zipper[A], B) ⇒ (Zipper.MoveResult[A], B)): (Zipper[A], B) = {
+    f(this, acc) match {
+      case (Zipper.MoveResult.Success(moved), accumulated) ⇒ moved.loopAccum(accumulated)(f)
+      case (Zipper.MoveResult.Failure(prev), accumulated) ⇒ (prev, accumulated)
+    }
+  }
 }
 
 object Zipper {
@@ -209,15 +288,27 @@ object Zipper {
     }
 
     /** Try another move if the current move failed */
-    def orElse(other: Zipper[A] ⇒ MoveResult[A]) = this match {
+    def orElse(other: Zipper[A] ⇒ MoveResult[A]): MoveResult[A] = this match {
       case Failure(prev) ⇒ other(prev)
       case success ⇒ success
     }
 
+    /** Try a result of another move if the current move failed */
+    def orElse(other: ⇒ MoveResult[A]): MoveResult[A] = this match {
+      case Failure(_) ⇒ other
+      case success ⇒ success
+    }
+
     /** Try another safe move if the current move failed */
-    def getOrElse(other: Zipper[A] ⇒ Zipper[A]) = this match {
+    def getOrElse(other: Zipper[A] ⇒ Zipper[A]): Zipper[A] = this match {
       case Success(zipper) ⇒ zipper
       case Failure(prev) ⇒ other(prev)
+    }
+
+    /** Try another zipper if the current move failed */
+    def getOrElse(other: Zipper[A]): Zipper[A] = this match {
+      case Success(zipper) ⇒ zipper
+      case Failure(prev) ⇒ other
     }
 
     /** Safely move the resulting zipper, if the current move did not fail */
