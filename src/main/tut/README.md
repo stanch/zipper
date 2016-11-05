@@ -107,7 +107,7 @@ Include these lines in your `build.sbt`:
 ```scala
 resolvers += Resolver.bintrayRepo("stanch", "maven")
 
-libraryDependencies += "org.stanch" %% "zipper" % "0.3.0"
+libraryDependencies += "org.stanch" %% "zipper" % "0.3.1"
 ```
 
 #### Unzip

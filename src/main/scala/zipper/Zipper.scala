@@ -281,6 +281,12 @@ object Zipper {
       case Failure(_) ⇒ throw new UnsupportedOperationException("failed to move the zipper")
     }
 
+    /** Obtain the resulting zipper or None if the move failed */
+    def toOption = this match {
+      case Success(zipper) ⇒ Some(zipper)
+      case Failure(_) ⇒ None
+    }
+
     /** Obtain the resulting zipper or the original zipper in case the move failed */
     def orStay = this match {
       case Success(zipper) ⇒ zipper

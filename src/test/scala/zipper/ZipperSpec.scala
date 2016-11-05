@@ -136,6 +136,9 @@ class ZipperSpec extends FlatSpec with Matchers {
   }
 
   it should "allow to recover impossible moves" in {
+    Zipper(tree).tryMoveUp.toOption shouldEqual None
+    Zipper(tree).tryMoveDownLeft.toOption.isDefined shouldEqual true
+
     val modified1 = Zipper(tree)
       .moveDownLeft
       .tryMoveLeft.getOrElse(_.insertLeft(Tree(-1)).moveLeft)
