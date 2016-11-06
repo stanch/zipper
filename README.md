@@ -37,20 +37,6 @@ val tree = Tree(
 )
 ```
 
-Let’s use [reftree](https://github.com/stanch/reftree) to have a better look:
-
-```scala
-import java.nio.file.Paths
-import reftree._
-
-// Simplify list visualization to reduce visual noise
-import ToRefTree.Simple.list
-
-val path = Paths.get("images", "readme")
-
-Diagram(path.resolve("tree.png"), verticalSpacing = 1).show(tree)
-```
-
 <img src="images/readme/tree.png" height="500px" />
 
 Since the tree is immutable, modifying it can be a pain,
@@ -81,24 +67,12 @@ val modified = {
 
 Here’s what the modified tree looks like:
 
-```scala
-Diagram(path.resolve("modified.png"), verticalSpacing = 1).show(modified)
-```
-
 <img src="images/readme/modified.png" height="500px" />
 
 If we draw both trees side by side, we’ll see that
 the unchanged parts are shared:
 
-```scala
-Diagram(path.resolve("both.png"), verticalSpacing = 1).show(tree, modified)
-```
-
 <img src="images/readme/both.png" height="500px" />
-
-_Since all the example code is actually run by [tut](https://github.com/tpolecat/tut),
-you can find the resulting images/readme in the `images/readme` directory._
-
 
 ### Usage
 
@@ -107,7 +81,7 @@ Include these lines in your `build.sbt`:
 ```scala
 resolvers += Resolver.bintrayRepo("stanch", "maven")
 
-libraryDependencies += "org.stanch" %% "zipper" % "0.3.1"
+libraryDependencies += "org.stanch" %% "zipper" % "0.4.0"
 ```
 
 #### Unzip
@@ -131,7 +105,7 @@ scala> case class Tree(x: Int, c: Vector[Tree] = Vector.empty)
 defined class Tree
 
 scala> implicit val unzip = Unzip.For[Tree, Vector].derive
-unzip: zipper.Unzip[Tree] = zipper.GenericUnzipInstances$For$$anon$2@4161590
+unzip: zipper.Unzip[Tree] = zipper.GenericUnzipInstances$For$$anon$2@2b97d076
 ```
 
 The automatic derivation is powered by [shapeless](https://github.com/milessabin/shapeless).
