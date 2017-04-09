@@ -67,6 +67,45 @@ class ZipperSpec extends FlatSpec with Matchers {
     )
   }
 
+  it should "support depth-first traversal" in {
+    Zipper(tree)
+      .advanceRightDepthFirst.tapFocus(_.x shouldEqual 11)
+      .advanceRightDepthFirst.tapFocus(_.x shouldEqual 111)
+      .advanceRightDepthFirst.tapFocus(_.x shouldEqual 112)
+      .advanceRightDepthFirst.tapFocus(_.x shouldEqual 12)
+
+    Zipper(tree)
+      .advanceLeftDepthFirst.tapFocus(_.x shouldEqual 13)
+      .advanceLeftDepthFirst.tapFocus(_.x shouldEqual 12)
+      .advanceLeftDepthFirst.tapFocus(_.x shouldEqual 123)
+      .advanceLeftDepthFirst.tapFocus(_.x shouldEqual 122)
+      .advanceLeftDepthFirst.tapFocus(_.x shouldEqual 1222)
+      .advanceLeftDepthFirst.tapFocus(_.x shouldEqual 1221)
+      .advanceLeftDepthFirst.tapFocus(_.x shouldEqual 121)
+
+    val trimmed = Zipper(tree)
+      .repeat(4, _.tryAdvanceLeftDepthFirst).tapFocus(_.x shouldEqual 122)
+      .deleteAndAdvanceRightDepthFirst.tapFocus(_.x shouldEqual 123)
+      .deleteAndAdvanceRightDepthFirst.tapFocus(_.x shouldEqual 13)
+      .cycle(_.tryMoveUp)
+      .repeat(3, _.tryAdvanceRightDepthFirst).tapFocus(_.x shouldEqual 112)
+      .deleteAndAdvanceLeftDepthFirst.tapFocus(_.x shouldEqual 111)
+      .tryDeleteAndAdvanceLeftDepthFirst.orStay.tapFocus(_.x shouldEqual 111)
+      .commit
+
+    trimmed shouldEqual Tree(
+      1, List(
+        Tree(11, List(
+          Tree(111)
+        )),
+        Tree(12, List(
+          Tree(121)
+        )),
+        Tree(13)
+      )
+    )
+  }
+
   it should "allow to express loops in a simple way" in {
     Zipper(tree)
       .cycle(_.tryMoveDownRight, _.tryMoveLeft, _.tryMoveLeft)

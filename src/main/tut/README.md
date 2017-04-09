@@ -81,7 +81,7 @@ Include these lines in your `build.sbt`:
 ```scala
 resolvers += Resolver.bintrayRepo("stanch", "maven")
 
-libraryDependencies += "org.stanch" %% "zipper" % "0.4.0"
+libraryDependencies += "org.stanch" %% "zipper" % "0.5.0"
 ```
 
 #### Unzip
@@ -114,7 +114,7 @@ There are many operations defined on a `Zipper`.
 Some of them are not safe, e.g. `moveLeft` will fail with an exception
 if there are no elements on the left.
 For all unsafe operations a safe version is provided, which is prefixed with `try`.
-These operations return a `Zipper.MoveResult`, which allows to recover from the failure or return to the previous state:
+These operations return a `Zipper.MoveResult`, which allows to recover from the failure or return to the original state:
 
 ```tut
 val tree = Tree(1, Vector(Tree(3), Tree(4)))

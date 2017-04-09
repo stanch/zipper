@@ -199,6 +199,38 @@ case class Zipper[A](
   /** Delete the value in focus and move up, or throw if impossible */
   def deleteAndMoveUp = tryDeleteAndMoveUp.get
 
+  // Depth-first traversal
+
+  /** Move to the next position in depth-first left-to-right order */
+  def tryAdvanceLeftDepthFirst = tryMoveDownRight
+    .orElse(_.tryMoveLeft)
+    .orElse(_.tryMoveUp.flatMap(_.tryMoveLeft))
+
+  /** Move to the next position in depth-first left-to-right order, or throw if impossible */
+  def advanceLeftDepthFirst = tryAdvanceLeftDepthFirst.get
+
+  /** Move to the next position in depth-first right-to-left order */
+  def tryAdvanceRightDepthFirst = tryMoveDownLeft
+    .orElse(_.tryMoveRight)
+    .orElse(_.tryMoveUp.flatMap(_.tryMoveRight))
+
+  /** Move to the next position in depth-first right-to-left order, or throw if impossible */
+  def advanceRightDepthFirst = tryAdvanceRightDepthFirst.get
+
+  /** Delete the value in focus and move to the next position in depth-first left-to-right order */
+  def tryDeleteAndAdvanceRightDepthFirst = tryDeleteAndMoveRight
+    .orElse(_.tryDeleteAndMoveUp.flatMap(_.tryMoveRight))
+
+  /** Delete the value in focus and move to the next position in depth-first left-to-right order, or throw if impossible */
+  def deleteAndAdvanceRightDepthFirst = tryDeleteAndAdvanceRightDepthFirst.get
+
+  /** Delete the value in focus and move to the next position in depth-first right-to-left order */
+  def tryDeleteAndAdvanceLeftDepthFirst = tryDeleteAndMoveLeft
+    .orElse(_.tryDeleteAndMoveUp.flatMap(_.tryMoveLeft))
+
+  /** Delete the value in focus and move to the next position in depth-first right-to-left order, or throw if impossible */
+  def deleteAndAdvanceLeftDepthFirst = tryDeleteAndAdvanceLeftDepthFirst.get
+
   // Loops
 
   /** Cycle through the moves until a failure is produced and return the last success */
