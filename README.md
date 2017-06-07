@@ -81,7 +81,11 @@ Include these lines in your `build.sbt`:
 ```scala
 resolvers += Resolver.bintrayRepo("stanch", "maven")
 
-libraryDependencies += "org.stanch" %% "zipper" % "0.5.0"
+// for JVM
+libraryDependencies += "org.stanch" %% "zipper" % "0.5.1"
+
+// for Scala.js
+libraryDependencies += "org.stanch" %%% "zipper" % "0.5.1"
 ```
 
 #### Unzip
@@ -105,7 +109,7 @@ scala> case class Tree(x: Int, c: Vector[Tree] = Vector.empty)
 defined class Tree
 
 scala> implicit val unzip = Unzip.For[Tree, Vector].derive
-unzip: zipper.Unzip[Tree] = zipper.GenericUnzipInstances$For$$anon$2@ec8e1f0
+unzip: zipper.Unzip[Tree] = zipper.GenericUnzipInstances$For$$anon$2@6389ff1a
 ```
 
 The automatic derivation is powered by [shapeless](https://github.com/milessabin/shapeless).

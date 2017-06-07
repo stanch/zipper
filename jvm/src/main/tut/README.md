@@ -81,7 +81,11 @@ Include these lines in your `build.sbt`:
 ```scala
 resolvers += Resolver.bintrayRepo("stanch", "maven")
 
-libraryDependencies += "org.stanch" %% "zipper" % "0.5.0"
+// for JVM
+libraryDependencies += "org.stanch" %% "zipper" % "0.5.1"
+
+// for Scala.js
+libraryDependencies += "org.stanch" %%% "zipper" % "0.5.1"
 ```
 
 #### Unzip
