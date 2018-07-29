@@ -79,13 +79,11 @@ the unchanged parts are shared:
 Include these lines in your `build.sbt`:
 
 ```scala
-resolvers += Resolver.bintrayRepo("stanch", "maven")
-
 // for JVM
-libraryDependencies += "org.stanch" %% "zipper" % "0.5.1"
+libraryDependencies += "io.github.stanch" %% "zipper" % "0.5.2"
 
 // for Scala.js
-libraryDependencies += "org.stanch" %%% "zipper" % "0.5.1"
+libraryDependencies += "io.github.stanch" %%% "zipper" % "0.5.2"
 ```
 
 #### Unzip
