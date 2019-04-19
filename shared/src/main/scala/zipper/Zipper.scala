@@ -39,8 +39,7 @@ case class Zipper[A](
   left: List[A],
   focus: A,
   right: List[A],
-  top: Option[Zipper[A]]
-)(implicit val unzip: Unzip[A]) {
+  top: Option[Zipper[A]]) {
   import Zipper._
 
   def stay: MoveResult[A] = MoveResult.Success(this, this)
@@ -90,29 +89,29 @@ case class Zipper[A](
   // Unzip-zip
 
   /** Unzip the current node and focus on the left child */
-  def tryMoveDownLeft = unzip.unzip(focus) match {
+  def tryMoveDownLeft(implicit unzip: Unzip[A]) = unzip.unzip(focus) match {
     case head :: tail ⇒
       moveTo(copy(left = Nil, focus = head, right = tail, top = Some(this)))
     case Nil ⇒ fail
   }
 
   /** Unzip the current node and focus on the left child, or throw if impossible */
-  def moveDownLeft = tryMoveDownLeft.get
+  def moveDownLeft(implicit unzip: Unzip[A]) = tryMoveDownLeft.get
 
   /** Unzip the current node and focus on the right child */
-  def tryMoveDownRight = tryMoveDownLeft.map(_.rewindRight)
+  def tryMoveDownRight(implicit unzip: Unzip[A]) = tryMoveDownLeft.map(_.rewindRight)
 
   /** Unzip the current node and focus on the right child, or throw if impossible */
-  def moveDownRight = tryMoveDownRight.get
+  def moveDownRight(implicit unzip: Unzip[A]) = tryMoveDownRight.get
 
   /** Unzip the current node and focus on the nth child */
-  def tryMoveDownAt(index: Int) = tryMoveDownLeft.map(_.moveRightBy(index))
+  def tryMoveDownAt(index: Int)(implicit unzip: Unzip[A]) = tryMoveDownLeft.map(_.moveRightBy(index))
 
   /** Unzip the current node and focus on the nth child, or throw if impossible */
-  def moveDownAt(index: Int) = tryMoveDownAt(index).get
+  def moveDownAt(index: Int)(implicit unzip: Unzip[A]) = tryMoveDownAt(index).get
 
   /** Zip the current layer and move up */
-  def tryMoveUp = top.fold(fail) { z ⇒
+  def tryMoveUp(implicit unzip: Unzip[A]) = top.fold(fail) { z ⇒
     moveTo {
       z.copy(focus = {
         val children = (focus :: left) reverse_::: right
@@ -122,10 +121,10 @@ case class Zipper[A](
   }
 
   /** Zip the current layer and move up, or throw if impossible */
-  def moveUp = tryMoveUp.get
+  def moveUp(implicit unzip: Unzip[A]) = tryMoveUp.get
 
   /** Zip to the top and return the resulting value */
-  def commit = cycle(_.tryMoveUp).focus
+  def commit(implicit unzip: Unzip[A]) = cycle(_.tryMoveUp).focus
 
   // Updates and focus manipulation
 
@@ -145,7 +144,7 @@ case class Zipper[A](
   def insertRight(value: A) = copy(right = value :: right)
 
   /** Move down left and insert a list of values on the left, focusing on the first one */
-  def tryInsertDownLeft(values: List[A]) = {
+  def tryInsertDownLeft(values: List[A])(implicit unzip: Unzip[A]) = {
     values ::: unzip.unzip(focus) match {
       case head :: tail ⇒
         moveTo(copy(left = Nil, focus = head, right = tail, top = Some(this)))
@@ -154,10 +153,10 @@ case class Zipper[A](
   }
 
   /** Move down left and insert a list of values on the left, focusing on the first one */
-  def insertDownLeft(values: List[A]) = tryInsertDownLeft(values).get
+  def insertDownLeft(values: List[A])(implicit unzip: Unzip[A]) = tryInsertDownLeft(values).get
 
   /** Move down right and insert a list of values on the right, focusing on the last one */
-  def tryInsertDownRight(values: List[A]) = {
+  def tryInsertDownRight(values: List[A])(implicit unzip: Unzip[A]) = {
     unzip.unzip(focus) ::: values match {
       case head :: tail ⇒
         moveTo(copy(left = Nil, focus = head, right = tail, top = Some(this)).rewindRight)
@@ -166,7 +165,7 @@ case class Zipper[A](
   }
 
   /** Move down right and insert a list of values on the right, focusing on the last one */
-  def insertDownRight(values: List[A]) = tryInsertDownRight(values).get
+  def insertDownRight(values: List[A])(implicit unzip: Unzip[A]) = tryInsertDownRight(values).get
 
   /** Delete the value in focus and move left */
   def tryDeleteAndMoveLeft = left match {
@@ -187,7 +186,7 @@ case class Zipper[A](
   def deleteAndMoveRight = tryDeleteAndMoveRight.get
 
   /** Delete the value in focus and move up */
-  def tryDeleteAndMoveUp = top.fold(fail) { z ⇒
+  def tryDeleteAndMoveUp (implicit unzip: Unzip[A]) = top.fold(fail) { z ⇒
     moveTo {
       z.copy(focus = {
         val children = left reverse_::: right
@@ -197,39 +196,39 @@ case class Zipper[A](
   }
 
   /** Delete the value in focus and move up, or throw if impossible */
-  def deleteAndMoveUp = tryDeleteAndMoveUp.get
+  def deleteAndMoveUp(implicit unzip: Unzip[A]) = tryDeleteAndMoveUp.get
 
   // Depth-first traversal
 
   /** Move to the next position in depth-first left-to-right order */
-  def tryAdvanceLeftDepthFirst = tryMoveDownRight
+  def tryAdvanceLeftDepthFirst(implicit unzip: Unzip[A]) = tryMoveDownRight
     .orElse(_.tryMoveLeft)
     .orElse(_.tryMoveUp.flatMap(_.tryMoveLeft))
 
   /** Move to the next position in depth-first left-to-right order, or throw if impossible */
-  def advanceLeftDepthFirst = tryAdvanceLeftDepthFirst.get
+  def advanceLeftDepthFirst(implicit unzip: Unzip[A]) = tryAdvanceLeftDepthFirst.get
 
   /** Move to the next position in depth-first right-to-left order */
-  def tryAdvanceRightDepthFirst = tryMoveDownLeft
+  def tryAdvanceRightDepthFirst(implicit unzip: Unzip[A]) = tryMoveDownLeft
     .orElse(_.tryMoveRight)
     .orElse(_.tryMoveUp.flatMap(_.tryMoveRight))
 
   /** Move to the next position in depth-first right-to-left order, or throw if impossible */
-  def advanceRightDepthFirst = tryAdvanceRightDepthFirst.get
+  def advanceRightDepthFirst(implicit unzip: Unzip[A]) = tryAdvanceRightDepthFirst.get
 
   /** Delete the value in focus and move to the next position in depth-first left-to-right order */
-  def tryDeleteAndAdvanceRightDepthFirst = tryDeleteAndMoveRight
+  def tryDeleteAndAdvanceRightDepthFirst(implicit unzip: Unzip[A]) = tryDeleteAndMoveRight
     .orElse(_.tryDeleteAndMoveUp.flatMap(_.tryMoveRight))
 
   /** Delete the value in focus and move to the next position in depth-first left-to-right order, or throw if impossible */
-  def deleteAndAdvanceRightDepthFirst = tryDeleteAndAdvanceRightDepthFirst.get
+  def deleteAndAdvanceRightDepthFirst(implicit unzip: Unzip[A]) = tryDeleteAndAdvanceRightDepthFirst.get
 
   /** Delete the value in focus and move to the next position in depth-first right-to-left order */
-  def tryDeleteAndAdvanceLeftDepthFirst = tryDeleteAndMoveLeft
+  def tryDeleteAndAdvanceLeftDepthFirst(implicit unzip: Unzip[A]) = tryDeleteAndMoveLeft
     .orElse(_.tryDeleteAndMoveUp.flatMap(_.tryMoveLeft))
 
   /** Delete the value in focus and move to the next position in depth-first right-to-left order, or throw if impossible */
-  def deleteAndAdvanceLeftDepthFirst = tryDeleteAndAdvanceLeftDepthFirst.get
+  def deleteAndAdvanceLeftDepthFirst(implicit unzip: Unzip[A]) = tryDeleteAndAdvanceLeftDepthFirst.get
 
   // Loops
 
