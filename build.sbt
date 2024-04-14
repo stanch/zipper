@@ -54,6 +54,7 @@ lazy val zipperJS = zipper.js
 lazy val docs = project
   .in(file("docs-gen"))
   .enablePlugins(MdocPlugin, BuildInfoPlugin)
+  .dependsOn(zipperJVM)
   .settings(commonSettings)
   .settings(
     name := "zipper`-docs",
