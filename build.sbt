@@ -1,11 +1,10 @@
 val commonSettings = Seq(
-  scalaVersion := "2.11.11",
-  crossScalaVersions := Seq("2.11.11", "2.12.2"),
+  scalaVersion := "2.12.19",
+  crossScalaVersions := Seq("2.12.19"),
   scalacOptions ++= Seq(
     "-feature", "-deprecation",
     "-Xlint", "-Ywarn-unused-import", "-Xfatal-warnings"
-  ),
-  scalacOptions in (Compile, doc) += "-no-link-warnings"
+  )
 ) ++ metadata ++ publishing
 
 lazy val metadata = Seq(
@@ -25,7 +24,6 @@ lazy val metadata = Seq(
 )
 
 lazy val publishing = Seq(
-  useGpg := false,
   usePgpKeyHex("8ED74E385203BEB1"),
   pgpPublicRing := baseDirectory.value.getParentFile / ".gnupg" / "pubring.gpg",
   pgpSecretRing := baseDirectory.value.getParentFile / ".gnupg" / "secring.gpg",
@@ -39,19 +37,15 @@ lazy val publishing = Seq(
   publishTo := Some(Opts.resolver.sonatypeStaging)
 )
 
-lazy val zipper = crossProject.in(file("."))
+lazy val zipper = crossProject(JSPlatform, JVMPlatform).in(file("."))
   .settings(commonSettings)
   .settings(
     name := "zipper",
     version := "0.5.2",
     libraryDependencies ++= Seq(
-      "com.chuusai" %%% "shapeless" % "2.3.2",
-      "org.scalatest" %%% "scalatest" % "3.0.3" % Test
+      "com.chuusai" %%% "shapeless" % "2.3.10",
+      "org.scalatest" %%% "scalatest" % "3.2.18" % Test
     )
-  )
-  .jvmSettings(
-    tutSettings,
-    tutTargetDirectory := baseDirectory.value.getParentFile
   )
 
 lazy val zipperJVM = zipper.jvm
