@@ -59,7 +59,8 @@ lazy val zipper = crossProject(JSPlatform, JVMPlatform).in(file("."))
     name := "zipper",
     libraryDependencies ++= Seq(
       "com.chuusai" %%% "shapeless" % "2.3.10",
-      "org.scalatest" %%% "scalatest" % "3.2.18" % Test
+      "org.scalatest" %%% "scalatest-flatspec" % "3.2.18" % Test,
+      "org.scalatest" %%% "scalatest-shouldmatchers" % "3.2.18" % Test
     )
   )
 
