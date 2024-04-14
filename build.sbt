@@ -4,7 +4,8 @@ val commonSettings = Seq(
   scalacOptions ++= Seq(
     "-feature", "-deprecation",
     "-Xlint", "-Ywarn-unused-import", "-Xfatal-warnings"
-  )
+  ),
+  version := "0.5.2"
 ) ++ metadata ++ publishing
 
 lazy val metadata = Seq(
@@ -41,7 +42,6 @@ lazy val zipper = crossProject(JSPlatform, JVMPlatform).in(file("."))
   .settings(commonSettings)
   .settings(
     name := "zipper",
-    version := "0.5.2",
     libraryDependencies ++= Seq(
       "com.chuusai" %%% "shapeless" % "2.3.10",
       "org.scalatest" %%% "scalatest" % "3.2.18" % Test
@@ -51,8 +51,25 @@ lazy val zipper = crossProject(JSPlatform, JVMPlatform).in(file("."))
 lazy val zipperJVM = zipper.jvm
 lazy val zipperJS = zipper.js
 
+lazy val docs = project
+  .in(file("docs-gen"))
+  .enablePlugins(MdocPlugin, BuildInfoPlugin)
+  .settings(commonSettings)
+  .settings(
+    name := "zipper`-docs",
+    moduleName := "zipper-docs",
+    (publish / skip) := true,
+    mdoc := (Compile / run).evaluated,
+    (Compile / mainClass) := Some("zipper.Docs"),
+    (Compile / resources) ++= {
+      List((ThisBuild / baseDirectory).value / "docs")
+    },
+    buildInfoKeys := Seq[BuildInfoKey](version),
+    buildInfoPackage := "zipper.build"
+  )
+
 lazy val root = project.in(file("."))
-  .aggregate(zipperJVM, zipperJS)
+  .aggregate(zipperJVM, zipperJS, docs)
   .settings(commonSettings)
   .settings(
     publish := {},
