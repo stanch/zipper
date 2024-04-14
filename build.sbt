@@ -1,10 +1,25 @@
+val commonScalacOptions =
+  Seq(
+    "-feature",
+    "-deprecation",
+    "-Xlint",
+    "-Xfatal-warnings"
+  )
+
 val commonSettings = Seq(
   scalaVersion := "2.12.19",
-  crossScalaVersions := Seq("2.12.19"),
-  scalacOptions ++= Seq(
-    "-feature", "-deprecation",
-    "-Xlint", "-Ywarn-unused-import", "-Xfatal-warnings"
-  ),
+  crossScalaVersions := Seq("2.12.19", "2.13.13"),
+  scalacOptions ++= {
+    scalaVersion.value match {
+      case v if v.startsWith("2.12") =>
+        Seq(
+          "-Ypartial-unification",
+          "-Ywarn-unused-import"
+        ) ++ commonScalacOptions
+      case _ =>
+        commonScalacOptions
+    }
+  },
   version := "0.5.2"
 ) ++ metadata ++ publishing
 
