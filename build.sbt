@@ -6,9 +6,12 @@ val commonScalacOptions =
     "-Xfatal-warnings"
   )
 
+val Scala212 = "2.12.19"
+val Scala213 = "2.13.13"
+
 val commonSettings = Seq(
-  scalaVersion := "2.12.19",
-  crossScalaVersions := Seq("2.12.19", "2.13.13"),
+  scalaVersion := Scala213,
+  crossScalaVersions := Seq(Scala212, Scala213),
   scalacOptions ++= {
     scalaVersion.value match {
       case v if v.startsWith("2.12") =>

@@ -1,9 +1,9 @@
 package zipper
 
-import shapeless.{HList, Generic}
-import shapeless.ops.hlist.{Selector, Replacer}
+import shapeless.{Generic, HList}
+import shapeless.ops.hlist.{Replacer, Selector}
 
-import scala.collection.BuildFrom
+import scala.collection.Factory
 
 private[zipper] trait ForImpl {
   class For[A, Coll[X] <: Seq[X]] {
@@ -12,12 +12,12 @@ private[zipper] trait ForImpl {
       implicit generic: Generic.Aux[A, L],
       select: Selector[L, Coll[A]],
       replace: Replacer.Aux[L, Coll[A], Coll[A], (Coll[A], L)],
-      bf: BuildFrom[Coll[A], A, Coll[A]]
+      factory: Factory[A, Coll[A]]
     ): Unzip[A] = new Unzip[A] {
       def unzip(node: A): List[A] = select(generic.to(node)).toList
 
       def zip(node: A, children: List[A]): A =
-        generic.from(replace(generic.to(node), (bf.newBuilder(Seq.empty[A].asInstanceOf[Coll[A]]) ++= children).result())._2)
+        generic.from(replace(generic.to(node), children.to(factory))._2)
     }
   }
 
