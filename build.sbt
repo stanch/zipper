@@ -76,7 +76,7 @@ lazy val docs = project
   .dependsOn(zipperJVM)
   .settings(commonSettings)
   .settings(
-    name := "zipper`-docs",
+    name := "zipper-docs",
     moduleName := "zipper-docs",
     (publish / skip) := true,
     mdoc := (Compile / run).evaluated,
