@@ -107,7 +107,7 @@ import zipper._
 
 case class Tree(x: Int, c: Vector[Tree] = Vector.empty)
 
-implicit val unzip = Unzip.For[Tree, Vector].derive
+implicit val unzip: Unzip[Tree] = Unzip.For[Tree, Vector].derive
 ```
 
 The automatic derivation is powered by [shapeless](https://github.com/milessabin/shapeless).
