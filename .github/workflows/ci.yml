@@ -1,22 +1,6 @@
 name: CI
-on:
-  push:
-    tags: ["*"]
-    branches: ['**', '!update/**', '!pr/**']
-  pull_request:
-    branches: ['**', '!update/**', '!pr/**']
+on: [push, pull_request]
 jobs:
-  docs:
-    name: Build docs
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-java@v4
-        with:
-          distribution: 'temurin'
-          java-version: '17'
-      - uses: coursier/cache-action@v6
-      - run: sbt docs/run
   tests:
     name: Run tests
     runs-on: ubuntu-latest
@@ -30,3 +14,14 @@ jobs:
       - name: Run tests
         run: |
           sbt "+Test/compile; +test"
+  docs:
+    name: Build docs
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+      - uses: coursier/cache-action@v6
+      - run: sbt docs/run
