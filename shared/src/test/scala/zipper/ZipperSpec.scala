@@ -1,10 +1,10 @@
 package zipper
 
-import org.scalatest.{FlatSpec, Matchers}
+import org.scalatest.flatspec.AnyFlatSpec
+import org.scalatest.matchers.should._
 
-class ZipperSpec extends FlatSpec with Matchers {
+class ZipperSpec extends AnyFlatSpec with Matchers {
   case class Tree(x: Int, c: List[Tree] = List.empty)
-  implicit val unzip = implicitly[Unzip[Tree]]
 
   val tree = Tree(
     1, List(
@@ -127,7 +127,7 @@ class ZipperSpec extends FlatSpec with Matchers {
     val (zipper, sum) = Zipper(tree)
       .repeatWhileNot(_.x > 10, next)
       .tapFocus(_.x shouldEqual 11)
-      .loopAccum(0) { (z, a) ⇒
+      .loopAccum(0) { (z, a) =>
         if (a > 1000) (z.fail, a)
         else (next(z), a + z.focus.x)
       }

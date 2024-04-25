@@ -37,7 +37,7 @@ val tree = Tree(
 )
 ```
 
-<img src="images/readme/tree.png" height="500px" />
+<img src="./docs/images/readme/tree.png" height="500px" />
 
 Since the tree is immutable, modifying it can be a pain,
 but it’s easily solved with a Zipper:
@@ -67,12 +67,12 @@ val modified = {
 
 Here’s what the modified tree looks like:
 
-<img src="images/readme/modified.png" height="500px" />
+<img src="./docs/images/readme/modified.png" height="500px" />
 
 If we draw both trees side by side, we’ll see that
 the unchanged parts are shared:
 
-<img src="images/readme/both.png" height="500px" />
+<img src="./docs/images/readme/both.png" height="500px" />
 
 ### Usage
 

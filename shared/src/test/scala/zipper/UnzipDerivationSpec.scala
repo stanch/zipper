@@ -1,8 +1,9 @@
 package zipper
 
-import org.scalatest.{Matchers, FlatSpec}
+import org.scalatest.flatspec.AnyFlatSpec
+import org.scalatest.matchers.should._
 
-class UnzipDerivationSpec extends FlatSpec with Matchers {
+class UnzipDerivationSpec extends AnyFlatSpec with Matchers {
   it should "derive Unzip for list-based trees" in {
     case class Tree(x: Int, c: List[Tree] = List.empty)
 

@@ -7,7 +7,7 @@ as well as the [Argonaut’s JSON Zipper](http://argonaut.io/doc/zipper/).
 
 Consider the following example:
 
-```tut:silent
+```scala mdoc:silent
 // Define a tree data structure
 case class Tree(x: Int, c: List[Tree] = List.empty)
 
@@ -37,12 +37,12 @@ val tree = Tree(
 )
 ```
 
-<img src="images/readme/tree.png" height="500px" />
+<img src="/docs/images/readme/tree.png" height="500px" />
 
 Since the tree is immutable, modifying it can be a pain,
 but it’s easily solved with a Zipper:
 
-```tut:silent
+```scala mdoc:silent
 import zipper._
 
 // Use a Zipper to move around and change data
@@ -67,12 +67,12 @@ val modified = {
 
 Here’s what the modified tree looks like:
 
-<img src="images/readme/modified.png" height="500px" />
+<img src="/docs/images/readme/modified.png" height="500px" />
 
 If we draw both trees side by side, we’ll see that
 the unchanged parts are shared:
 
-<img src="images/readme/both.png" height="500px" />
+<img src="/docs/images/readme/both.png" height="500px" />
 
 ### Usage
 
@@ -80,10 +80,10 @@ Include these lines in your `build.sbt`:
 
 ```scala
 // for JVM
-libraryDependencies += "io.github.stanch" %% "zipper" % "0.5.2"
+libraryDependencies += "io.github.stanch" %% "zipper" % "@VERSION@"
 
 // for Scala.js
-libraryDependencies += "io.github.stanch" %%% "zipper" % "0.5.2"
+libraryDependencies += "io.github.stanch" %%% "zipper" % "@VERSION@"
 ```
 
 #### Unzip
@@ -102,10 +102,12 @@ As we saw before, the library can automatically derive `Unzip[Tree]`
 if the `Tree` is a case class that has a single field of type `List[Tree]`.
 It is also possible to derive an `Unzip[Tree]` for similar cases, but with other collections:
 
-```tut
+```scala mdoc:reset
+import zipper._
+
 case class Tree(x: Int, c: Vector[Tree] = Vector.empty)
 
-implicit val unzip = Unzip.For[Tree, Vector].derive
+implicit val unzip: Unzip[Tree] = Unzip.For[Tree, Vector].derive
 ```
 
 The automatic derivation is powered by [shapeless](https://github.com/milessabin/shapeless).
@@ -118,29 +120,29 @@ if there are no elements on the left.
 For all unsafe operations a safe version is provided, which is prefixed with `try`.
 These operations return a `Zipper.MoveResult`, which allows to recover from the failure or return to the original state:
 
-```tut
-val tree = Tree(1, Vector(Tree(3), Tree(4)))
+```scala mdoc
+val newTree = Tree(1, Vector(Tree(3), Tree(4)))
 
-val modified = {
-  Zipper(tree)
+val newModified = 
+  Zipper(newTree)
     .moveDownLeft
     .tryMoveLeft.getOrElse(_.insertLeft(Tree(2)).moveLeft)
     .commit
-}
 ```
 
 #### Loops
 
 `Zipper` provides a looping functionality, which can be useful with recursive data:
 
-```tut
-val tree = Tree(1, Vector(Tree(2), Tree(3), Tree(5)))
+```scala mdoc
+import zipper._
 
-val modified = {
-  Zipper(tree)
+val anotherTree = Tree(1, Vector(Tree(2), Tree(3), Tree(5)))
+
+val anotherModified = 
+  Zipper(anotherTree)
     .moveDownLeft
     .repeatWhile(_.x < 5, _.tryMoveRight)
     .insertRight(Tree(4))
     .commit
-}
 ```

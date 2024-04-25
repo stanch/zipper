@@ -1,9 +1,0 @@
-language: scala
-
-script: sbt +clean +test
-
-deploy:
-  provider: script
-  script: sbt +publishSigned sonatypeReleaseAll
-  on:
-    tags: true
