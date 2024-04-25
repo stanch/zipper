@@ -80,10 +80,10 @@ Include these lines in your `build.sbt`:
 
 ```scala
 // for JVM
-libraryDependencies += "io.github.stanch" %% "zipper" % "0.5.2"
+libraryDependencies += "io.github.stanch" %% "zipper" % "0.6.0"
 
 // for Scala.js
-libraryDependencies += "io.github.stanch" %%% "zipper" % "0.5.2"
+libraryDependencies += "io.github.stanch" %%% "zipper" % "0.6.0"
 ```
 
 #### Unzip
@@ -108,7 +108,7 @@ import zipper._
 case class Tree(x: Int, c: Vector[Tree] = Vector.empty)
 
 implicit val unzip: Unzip[Tree] = Unzip.For[Tree, Vector].derive
-// unzip: Unzip[Tree] = zipper.ForImpl$For$$anon$1@3aa4934d
+// unzip: Unzip[Tree] = zipper.ForImpl$For$$anon$1@3ef3b977
 ```
 
 The automatic derivation is powered by [shapeless](https://github.com/milessabin/shapeless).
