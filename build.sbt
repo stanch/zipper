@@ -23,7 +23,7 @@ val commonSettings = Seq(
         commonScalacOptions
     }
   },
-  version := "0.5.2"
+  version := "0.6.0"
 ) ++ metadata ++ publishing
 
 lazy val metadata = Seq(
