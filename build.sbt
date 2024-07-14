@@ -1,24 +1,30 @@
-val commonScalacOptions =
-  Seq(
-    "-feature",
-    "-deprecation",
-    "-Xlint",
-    "-Xfatal-warnings"
-  )
-
 val Scala212 = "2.12.19"
 val Scala213 = "2.13.13"
+val Scala3 = "3.3.3"
 
 val commonSettings = Seq(
   scalaVersion := Scala213,
-  crossScalaVersions := Seq(Scala212, Scala213),
+  crossScalaVersions := Seq(Scala212, Scala213, Scala3),
   scalacOptions ++= {
+    val commonScalacOptions =
+      Seq(
+        "-feature",
+        "-deprecation",
+        "-Xfatal-warnings"
+      )
+    val scala2Options =
+      Seq(
+        "-Xlint"
+      )
+
     scalaVersion.value match {
       case v if v.startsWith("2.12") =>
         Seq(
           "-Ypartial-unification",
           "-Ywarn-unused-import"
-        ) ++ commonScalacOptions
+        ) ++ commonScalacOptions ++ scala2Options
+      case v if v.startsWith("2.13") =>
+        commonScalacOptions ++ scala2Options
       case _ =>
         commonScalacOptions
     }
@@ -60,8 +66,15 @@ lazy val zipper = crossProject(JSPlatform, JVMPlatform).in(file("."))
   .settings(commonSettings)
   .settings(
     name := "zipper",
+    libraryDependencies += {
+      scalaVersion.value match {
+        case v if v.startsWith("2") =>
+          "com.chuusai" %%% "shapeless" % "2.3.10"
+        case _ =>
+          "org.typelevel" %% "shapeless3-deriving" % "3.4.1"
+      }
+    },
     libraryDependencies ++= Seq(
-      "com.chuusai" %%% "shapeless" % "2.3.10",
       "org.scalatest" %%% "scalatest-flatspec" % "3.2.18" % Test,
       "org.scalatest" %%% "scalatest-shouldmatchers" % "3.2.18" % Test
     )
