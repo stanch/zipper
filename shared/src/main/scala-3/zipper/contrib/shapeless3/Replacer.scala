@@ -1,5 +1,10 @@
 package contrib.shapeless3
 
+/**
+ * This is ported from [[shapeless.ops.hlist.Replacer Replacer]] from shapeless-2.
+ * At the moment of implementation, there is no direct support in shapeless-3.
+ * We should give up on it once it arrives in the library.
+ */
 trait Replacer[L <: Tuple, U, V]:
   type Out <: Tuple
   def apply(t: L, v: V): Out
