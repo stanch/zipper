@@ -28,9 +28,8 @@ val commonSettings = Seq(
       case _ =>
         commonScalacOptions
     }
-  },
-  version := "0.6.0"
-) ++ metadata ++ publishing
+  }
+) ++ metadata
 
 lazy val metadata = Seq(
   organization := "io.github.stanch",
@@ -46,20 +45,6 @@ lazy val metadata = Seq(
     url=url("https://github.com/stanch")
   )),
   licenses += ("MIT", url("http://opensource.org/licenses/MIT"))
-)
-
-lazy val publishing = Seq(
-  usePgpKeyHex("8ED74E385203BEB1"),
-  pgpPublicRing := baseDirectory.value.getParentFile / ".gnupg" / "pubring.gpg",
-  pgpSecretRing := baseDirectory.value.getParentFile / ".gnupg" / "secring.gpg",
-  pgpPassphrase := sys.env.get("PGP_PASS").map(_.toArray),
-  credentials += Credentials(
-    "Sonatype Nexus Repository Manager",
-    "oss.sonatype.org",
-    sys.env.getOrElse("SONATYPE_USER", ""),
-    sys.env.getOrElse("SONATYPE_PASS", "")
-  ),
-  publishTo := Some(Opts.resolver.sonatypeStaging)
 )
 
 lazy val zipper = crossProject(JSPlatform, JVMPlatform).in(file("."))
