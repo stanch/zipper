@@ -6,7 +6,7 @@ import shapeless.ops.hlist.{Selector, Replacer}
 import scala.collection.generic.CanBuildFrom
 import scala.language.higherKinds
 
-private[zipper] trait ForImpl {
+private[zipper] trait ForImplScalaVersionSpecific {
   class For[A, Coll[X] <: Seq[X]] {
     /** Derive an instance of `Unzip[A]` */
     def derive[L <: HList](

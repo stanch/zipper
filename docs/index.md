@@ -76,7 +76,7 @@ the unchanged parts are shared:
 
 ### Usage
 
-Include these lines in your `build.sbt`:
+`zipper` is available for Scala 2.12, 2.13 and 3.3+. Include these lines in your `build.sbt`:
 
 ```scala
 // for JVM

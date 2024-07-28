@@ -5,7 +5,7 @@ import shapeless.ops.hlist.{Replacer, Selector}
 
 import scala.collection.Factory
 
-private[zipper] trait ForImpl {
+private[zipper] trait ForImplScalaVersionSpecific {
   class For[A, Coll[X] <: Seq[X]] {
     /** Derive an instance of `Unzip[A]` */
     def derive[L <: HList](

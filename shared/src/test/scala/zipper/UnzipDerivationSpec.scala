@@ -19,7 +19,7 @@ class UnzipDerivationSpec extends AnyFlatSpec with Matchers {
     val before = Tree(1, Vector(Tree(2)))
     val after = Tree(1, Vector(Tree(2), Tree(3)))
 
-    implicit val unzip = Unzip.For[Tree, Vector].derive
+    implicit val unzip: Unzip[Tree] = Unzip.For[Tree, Vector].derive
 
     Zipper(before).moveDownRight.insertRight(Tree(3)).commit shouldEqual after
   }
