@@ -56,7 +56,7 @@ lazy val zipper = crossProject(JSPlatform, JVMPlatform).in(file("."))
         case v if v.startsWith("2") =>
           "com.chuusai" %%% "shapeless" % "2.3.10"
         case _ =>
-          "org.typelevel" %% "shapeless3-deriving" % "3.4.1"
+          "org.typelevel" %%% "shapeless3-deriving" % "3.4.1"
       }
     },
     libraryDependencies ++= Seq(
