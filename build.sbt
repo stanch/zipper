@@ -90,6 +90,7 @@ lazy val root = project.in(file("."))
   .aggregate(zipperJVM, zipperJS, docs)
   .settings(commonSettings)
   .settings(
+    name := "zipper-root",
     publish := {},
     publishLocal := {},
     publishArtifact := false
